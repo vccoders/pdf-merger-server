@@ -1,0 +1,16 @@
+{
+    "files": [
+        {
+            "fileKey": "uploads/test1.pdf",
+            "order": 1
+        },
+        {
+            "fileKey": "uploads/test2.pdf",
+            "order": 2
+        }
+    ],
+    "options": {
+        "outputFilename": "merged.pdf",
+        "pageSize": "A4"
+    }
+}
