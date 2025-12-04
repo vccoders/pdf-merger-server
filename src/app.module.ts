@@ -11,13 +11,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomLoggerModule } from './common/logger/logger.module';
 import { HealthModule } from './health/health.module';
-import { BullBoardConfigModule } from './queue/bull-board.module';
 import { validationSchema } from './config/env.validation';
-
-// Conditionally include BullBoard only when NOT in sync/serverless mode
-const conditionalImports = process.env.SYNC_PROCESSING !== 'true'
-  ? [BullBoardConfigModule]
-  : [];
 
 @Module({
   imports: [
@@ -45,7 +39,6 @@ const conditionalImports = process.env.SYNC_PROCESSING !== 'true'
     WorkerModule,
     EventsModule,
     HealthModule,
-    ...conditionalImports,
   ],
   controllers: [AppController],
   providers: [
@@ -57,4 +50,3 @@ const conditionalImports = process.env.SYNC_PROCESSING !== 'true'
   ],
 })
 export class AppModule { }
-
