@@ -7,11 +7,11 @@ export declare class EventsGateway implements OnGatewayConnection, OnGatewayDisc
     handleDisconnect(client: Socket): void;
     handleJoinJob(data: {
         jobId: string;
-    }, client: Socket): {
+    }, client: Socket): Promise<{
         event: string;
         data: {
             jobId: string;
         };
-    };
+    }>;
     emitProgress(jobId: string, progress: number, status: string, resultKey?: string): void;
 }

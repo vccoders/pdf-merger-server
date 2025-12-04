@@ -54,7 +54,7 @@ async function bootstrap() {
     }
     app.useLogger(app.get(nestjs_pino_1.Logger));
     app.use((0, helmet_1.default)({
-        crossOriginResourcePolicy: { policy: "cross-origin" },
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
     }));
     app.use((0, compression_1.default)());
     app.enableCors({
@@ -77,5 +77,5 @@ async function bootstrap() {
     await app.listen(port);
     console.log(`Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+void bootstrap();
 //# sourceMappingURL=main.js.map

@@ -27,19 +27,21 @@ let EventsGateway = EventsGateway_1 = class EventsGateway {
     handleDisconnect(client) {
         this.logger.log(`Client disconnected: ${client.id}`);
     }
-    handleJoinJob(data, client) {
+    async handleJoinJob(data, client) {
         const { jobId } = data;
-        client.join(`job:${jobId}`);
+        await client.join(`job:${jobId}`);
         this.logger.log(`Client ${client.id} joined job:${jobId}`);
         return { event: 'joined-job', data: { jobId } };
     }
     emitProgress(jobId, progress, status, resultKey) {
-        this.server.to(`job:${jobId}`).emit('job-progress', {
-            jobId,
-            progress,
-            status,
-            resultKey,
-        });
+        if (this.server) {
+            this.server.to(`job:${jobId}`).emit('job-progress', {
+                jobId,
+                progress,
+                status,
+                resultKey,
+            });
+        }
     }
 };
 exports.EventsGateway = EventsGateway;
@@ -53,7 +55,7 @@ __decorate([
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, socket_io_1.Socket]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], EventsGateway.prototype, "handleJoinJob", null);
 exports.EventsGateway = EventsGateway = EventsGateway_1 = __decorate([
     (0, websockets_1.WebSocketGateway)({

@@ -20,7 +20,6 @@ const throttler_1 = require("@nestjs/throttler");
 const core_1 = require("@nestjs/core");
 const logger_module_1 = require("./common/logger/logger.module");
 const health_module_1 = require("./health/health.module");
-const bull_board_module_1 = require("./queue/bull-board.module");
 const env_validation_1 = require("./config/env.validation");
 let AppModule = class AppModule {
 };
@@ -39,10 +38,12 @@ exports.AppModule = AppModule = __decorate([
             throttler_1.ThrottlerModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
-                useFactory: (config) => [{
+                useFactory: (config) => [
+                    {
                         ttl: config.get('THROTTLE_TTL', 60000),
                         limit: config.get('THROTTLE_LIMIT', 10),
-                    }],
+                    },
+                ],
             }),
             prisma_module_1.PrismaModule,
             merge_module_1.MergeModule,
@@ -50,7 +51,6 @@ exports.AppModule = AppModule = __decorate([
             worker_module_1.WorkerModule,
             events_module_1.EventsModule,
             health_module_1.HealthModule,
-            bull_board_module_1.BullBoardConfigModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

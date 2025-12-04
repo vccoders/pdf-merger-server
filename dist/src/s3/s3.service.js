@@ -83,8 +83,9 @@ let S3Service = S3Service_1 = class S3Service {
             return url;
         }
         catch (error) {
-            this.logger.error(`Error generating upload URL for key ${key}: ${error.message}`, error.stack);
-            throw error;
+            const err = error;
+            this.logger.error(`Error generating upload URL for key ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
     async getSignedDownloadUrl(key, expiresIn = 3600, filename) {
@@ -92,15 +93,18 @@ let S3Service = S3Service_1 = class S3Service {
             const command = new client_s3_1.GetObjectCommand({
                 Bucket: this.bucketName,
                 Key: key,
-                ResponseContentDisposition: filename ? `attachment; filename="${filename}"` : undefined,
+                ResponseContentDisposition: filename
+                    ? `attachment; filename="${filename}"`
+                    : undefined,
             });
             const url = await (0, s3_request_presigner_1.getSignedUrl)(this.s3Client, command, { expiresIn });
             this.logger.debug(`Generated download URL for key: ${key}`);
             return url;
         }
         catch (error) {
-            this.logger.error(`Error generating download URL for key ${key}: ${error.message}`, error.stack);
-            throw error;
+            const err = error;
+            this.logger.error(`Error generating download URL for key ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
     async deleteObject(key) {
@@ -113,8 +117,9 @@ let S3Service = S3Service_1 = class S3Service {
             this.logger.log(`Deleted object: ${key}`);
         }
         catch (error) {
-            this.logger.error(`Error deleting object ${key}: ${error.message}`, error.stack);
-            throw error;
+            const err = error;
+            this.logger.error(`Error deleting object ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
     async checkFileExists(key) {
@@ -135,11 +140,12 @@ let S3Service = S3Service_1 = class S3Service {
             };
         }
         catch (error) {
-            if (error.name === 'NotFound') {
+            const err = error;
+            if (err.name === 'NotFound') {
                 return { exists: false };
             }
-            this.logger.error(`Error checking file existence for key ${key}: ${error.message}`, error.stack);
-            throw error;
+            this.logger.error(`Error checking file existence for key ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
     async downloadFile(key, localPath) {
@@ -160,8 +166,9 @@ let S3Service = S3Service_1 = class S3Service {
             this.logger.log(`Downloaded ${key} to ${localPath}`);
         }
         catch (error) {
-            this.logger.error(`Error downloading file ${key}: ${error.message}`, error.stack);
-            throw error;
+            const err = error;
+            this.logger.error(`Error downloading file ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
     async uploadFile(key, localPath, contentType) {
@@ -181,8 +188,9 @@ let S3Service = S3Service_1 = class S3Service {
             this.logger.log(`Uploaded ${localPath} to ${key}`);
         }
         catch (error) {
-            this.logger.error(`Error uploading file ${key}: ${error.message}`, error.stack);
-            throw error;
+            const err = error;
+            this.logger.error(`Error uploading file ${key}: ${err.message}`, err.stack);
+            throw err;
         }
     }
 };

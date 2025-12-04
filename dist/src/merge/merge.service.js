@@ -19,11 +19,15 @@ const bull_1 = require("@nestjs/bull");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const s3_service_1 = require("../s3/s3.service");
+const merge_processor_1 = require("../worker/merge.processor");
+const config_1 = require("@nestjs/config");
 let MergeService = MergeService_1 = class MergeService {
-    constructor(mergeQueue, prisma, s3Service) {
+    constructor(mergeQueue, prisma, s3Service, mergeProcessor, configService) {
         this.mergeQueue = mergeQueue;
         this.prisma = prisma;
         this.s3Service = s3Service;
+        this.mergeProcessor = mergeProcessor;
+        this.configService = configService;
         this.logger = new common_1.Logger(MergeService_1.name);
     }
     async createJob(createMergeJobDto) {
@@ -35,19 +39,43 @@ let MergeService = MergeService_1 = class MergeService {
             },
         });
         this.logger.log(`Created job ${job.id} in DB`);
-        await this.mergeQueue.add('merge-job', {
-            jobId: job.id,
-            files: createMergeJobDto.files,
-            options: createMergeJobDto.options,
-        }, {
-            attempts: 3,
-            backoff: {
-                type: 'exponential',
-                delay: 1000,
-            },
-            removeOnComplete: true,
-            removeOnFail: false,
-        });
+        const isSync = this.configService.get('SYNC_PROCESSING') === 'true';
+        if (isSync) {
+            this.logger.log(`Processing job ${job.id} synchronously (Netlify Mode)`);
+            const mockJob = {
+                data: {
+                    jobId: job.id,
+                    files: createMergeJobDto.files,
+                    options: createMergeJobDto.options,
+                },
+                progress: (p) => {
+                    this.logger.debug(`Job ${job.id} progress: ${p}`);
+                },
+            };
+            try {
+                await this.mergeProcessor.handleMerge(mockJob);
+            }
+            catch (error) {
+                const err = error;
+                this.logger.error(`Sync processing failed for job ${job.id}: ${err.message}`, err.stack);
+            }
+        }
+        else {
+            await this.mergeQueue.add('merge-job', {
+                jobId: job.id,
+                files: createMergeJobDto.files,
+                options: createMergeJobDto.options,
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000,
+                },
+                removeOnComplete: true,
+                removeOnFail: false,
+            });
+            this.logger.log(`Enqueued job ${job.id}`);
+        }
         this.logger.log(`Enqueued job ${job.id}`);
         return job;
     }
@@ -63,7 +91,9 @@ let MergeService = MergeService_1 = class MergeService {
         }
         const options = job.options;
         const filename = (options === null || options === void 0 ? void 0 : options.outputFilename) || `merged-${id}.pdf`;
-        const finalFilename = filename.toLowerCase().endsWith('.pdf') ? filename : `${filename}.pdf`;
+        const finalFilename = filename.toLowerCase().endsWith('.pdf')
+            ? filename
+            : `${filename}.pdf`;
         const url = await this.s3Service.getSignedDownloadUrl(job.resultKey, 3600, finalFilename);
         return { downloadUrl: url };
     }
@@ -73,6 +103,8 @@ exports.MergeService = MergeService = MergeService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, bull_1.InjectQueue)('merge-queue')),
     __metadata("design:paramtypes", [Object, prisma_service_1.PrismaService,
-        s3_service_1.S3Service])
+        s3_service_1.S3Service,
+        merge_processor_1.MergeProcessor,
+        config_1.ConfigService])
 ], MergeService);
 //# sourceMappingURL=merge.service.js.map

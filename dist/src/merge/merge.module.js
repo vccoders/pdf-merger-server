@@ -13,12 +13,13 @@ const merge_service_1 = require("./merge.service");
 const queue_module_1 = require("../queue/queue.module");
 const prisma_module_1 = require("../prisma/prisma.module");
 const s3_module_1 = require("../s3/s3.module");
+const worker_module_1 = require("../worker/worker.module");
 let MergeModule = class MergeModule {
 };
 exports.MergeModule = MergeModule;
 exports.MergeModule = MergeModule = __decorate([
     (0, common_1.Module)({
-        imports: [queue_module_1.QueueModule, prisma_module_1.PrismaModule, s3_module_1.S3Module],
+        imports: [queue_module_1.QueueModule.register(), prisma_module_1.PrismaModule, s3_module_1.S3Module, worker_module_1.WorkerModule],
         controllers: [merge_controller_1.MergeController],
         providers: [merge_service_1.MergeService],
     })

@@ -119,16 +119,17 @@ let MergeProcessor = MergeProcessor_1 = class MergeProcessor {
             this.logger.log(`Job ${jobId} completed successfully`);
         }
         catch (error) {
-            this.logger.error(`Job ${jobId} failed: ${error.message}`, error.stack);
+            const err = error;
+            this.logger.error(`Job ${jobId} failed: ${err.message}`, err.stack);
             await this.prisma.job.update({
                 where: { id: jobId },
                 data: {
                     status: client_1.MergeJobStatus.FAILED,
-                    error: error.message,
+                    error: err.message,
                 },
             });
             this.eventsGateway.emitProgress(jobId, 0, client_1.MergeJobStatus.FAILED);
-            throw error;
+            throw err;
         }
         finally {
             await fs.remove(jobDir);

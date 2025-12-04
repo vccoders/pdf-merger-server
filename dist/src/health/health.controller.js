@@ -25,7 +25,8 @@ let PrismaHealthIndicator = class PrismaHealthIndicator extends terminus_1.Healt
             return this.getStatus(key, true);
         }
         catch (error) {
-            return this.getStatus(key, false, { message: error.message });
+            const err = error;
+            return this.getStatus(key, false, { message: err.message });
         }
     }
 };
@@ -47,14 +48,12 @@ let HealthController = class HealthController {
             () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
             () => this.disk.checkStorage('storage', {
                 path: process.cwd(),
-                thresholdPercent: 0.9
+                thresholdPercent: 0.9,
             }),
         ]);
     }
     ready() {
-        return this.health.check([
-            () => this.prismaHealth.isHealthy('database'),
-        ]);
+        return this.health.check([() => this.prismaHealth.isHealthy('database')]);
     }
     live() {
         return { status: 'ok' };

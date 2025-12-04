@@ -1,16 +1,21 @@
 import { Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMergeJobDto } from './dto/create-merge-job.dto';
+import { Prisma } from '@prisma/client';
 import { S3Service } from '../s3/s3.service';
+import { MergeProcessor } from '../worker/merge.processor';
+import { ConfigService } from '@nestjs/config';
 export declare class MergeService {
     private mergeQueue;
     private prisma;
     private s3Service;
+    private mergeProcessor;
+    private configService;
     private readonly logger;
-    constructor(mergeQueue: Queue, prisma: PrismaService, s3Service: S3Service);
+    constructor(mergeQueue: Queue, prisma: PrismaService, s3Service: S3Service, mergeProcessor: MergeProcessor, configService: ConfigService);
     createJob(createMergeJobDto: CreateMergeJobDto): Promise<{
-        files: import("@prisma/client/runtime/client").JsonValue;
-        options: import("@prisma/client/runtime/client").JsonValue | null;
+        files: Prisma.JsonValue;
+        options: Prisma.JsonValue | null;
         error: string | null;
         id: string;
         status: import(".prisma/client").$Enums.MergeJobStatus;
@@ -20,8 +25,8 @@ export declare class MergeService {
         updatedAt: Date;
     }>;
     getJob(id: string): Promise<{
-        files: import("@prisma/client/runtime/client").JsonValue;
-        options: import("@prisma/client/runtime/client").JsonValue | null;
+        files: Prisma.JsonValue;
+        options: Prisma.JsonValue | null;
         error: string | null;
         id: string;
         status: import(".prisma/client").$Enums.MergeJobStatus;
