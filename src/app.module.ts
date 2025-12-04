@@ -14,6 +14,11 @@ import { HealthModule } from './health/health.module';
 import { BullBoardConfigModule } from './queue/bull-board.module';
 import { validationSchema } from './config/env.validation';
 
+// Conditionally include BullBoard only when NOT in sync/serverless mode
+const conditionalImports = process.env.SYNC_PROCESSING !== 'true'
+  ? [BullBoardConfigModule]
+  : [];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,7 +45,7 @@ import { validationSchema } from './config/env.validation';
     WorkerModule,
     EventsModule,
     HealthModule,
-    BullBoardConfigModule,
+    ...conditionalImports,
   ],
   controllers: [AppController],
   providers: [
@@ -51,4 +56,5 @@ import { validationSchema } from './config/env.validation';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
+

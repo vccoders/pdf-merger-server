@@ -11,7 +11,10 @@
     "@nestjs/mongoose",
     "@mikro-orm/core",
     "@nestjs/sequelize",
-    "@nestjs/typeorm"
+    "@nestjs/typeorm",
+    "@bull-board/nestjs",
+    "@bull-board/express",
+    "@bull-board/api"
   ]
 
 [[redirects]]
