@@ -84,7 +84,7 @@ export class MergeProcessor {
       }
 
       const mergedPdfBytes = await mergedPdf.save();
-      const outputFilename = (options?.outputFilename as string) || `merged-${jobId}.pdf`;
+      const outputFilename = options?.outputFilename || `merged-${jobId}.pdf`;
       const outputPath = path.join(jobDir, outputFilename);
       await fs.writeFile(outputPath, mergedPdfBytes);
 
