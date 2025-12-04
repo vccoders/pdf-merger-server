@@ -4,7 +4,15 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@nestjs/microservices", "pg-native", "@nestjs/websockets"]
+  external_node_modules = [
+    "@nestjs/microservices", 
+    "pg-native", 
+    "@nestjs/websockets",
+    "@nestjs/mongoose",
+    "@mikro-orm/core",
+    "@nestjs/sequelize",
+    "@nestjs/typeorm"
+  ]
 
 [[redirects]]
   from = "/api/*"
