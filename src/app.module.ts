@@ -27,10 +27,12 @@ import { validationSchema } from './config/env.validation';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => [{
-        ttl: config.get('THROTTLE_TTL', 60000),
-        limit: config.get('THROTTLE_LIMIT', 10),
-      }],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('THROTTLE_TTL', 60000),
+          limit: config.get('THROTTLE_LIMIT', 10),
+        },
+      ],
     }),
     PrismaModule,
     MergeModule,
@@ -49,4 +51,4 @@ import { validationSchema } from './config/env.validation';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

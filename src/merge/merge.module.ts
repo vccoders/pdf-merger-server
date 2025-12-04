@@ -7,8 +7,8 @@ import { S3Module } from '../s3/s3.module';
 import { WorkerModule } from '../worker/worker.module';
 
 @Module({
-    imports: [QueueModule, PrismaModule, S3Module, WorkerModule],
-    controllers: [MergeController],
-    providers: [MergeService],
+  imports: [QueueModule, PrismaModule, S3Module, WorkerModule],
+  controllers: [MergeController],
+  providers: [MergeService],
 })
-export class MergeModule { }
+export class MergeModule {}
