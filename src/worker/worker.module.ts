@@ -7,8 +7,14 @@ import { ConfigModule } from '@nestjs/config';
 import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [ConfigModule, S3Module, PrismaModule, QueueModule.register(), EventsModule],
+  imports: [
+    ConfigModule,
+    S3Module,
+    PrismaModule,
+    QueueModule.register(),
+    EventsModule,
+  ],
   providers: [MergeProcessor],
   exports: [MergeProcessor],
 })
-export class WorkerModule { }
+export class WorkerModule {}

@@ -15,7 +15,6 @@ var MergeService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MergeService = void 0;
 const common_1 = require("@nestjs/common");
-const bull_1 = require("@nestjs/bull");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const s3_service_1 = require("../s3/s3.service");
@@ -101,7 +100,7 @@ let MergeService = MergeService_1 = class MergeService {
 exports.MergeService = MergeService;
 exports.MergeService = MergeService = MergeService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, bull_1.InjectQueue)('merge-queue')),
+    __param(0, (0, common_1.Inject)('BullQueue_merge-queue')),
     __metadata("design:paramtypes", [Object, prisma_service_1.PrismaService,
         s3_service_1.S3Service,
         merge_processor_1.MergeProcessor,

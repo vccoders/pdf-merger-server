@@ -49,4 +49,4 @@ import { validationSchema } from './config/env.validation';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

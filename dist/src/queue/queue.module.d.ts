@@ -1,4 +1,4 @@
 import { DynamicModule } from '@nestjs/common';
 export declare class QueueModule {
-    static register(): Promise<DynamicModule>;
+    static register(): DynamicModule;
 }

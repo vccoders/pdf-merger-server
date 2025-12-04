@@ -1,6 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue, Job } from 'bull';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMergeJobDto } from './dto/create-merge-job.dto';
 import { MergeJobStatus, Prisma } from '@prisma/client';
@@ -9,12 +7,17 @@ import { S3Service } from '../s3/s3.service';
 import { MergeProcessor } from '../worker/merge.processor';
 import { ConfigService } from '@nestjs/config';
 
+// Type for Queue (either real Bull queue or mock)
+interface IQueue {
+  add(name: string, data: any, options?: any): Promise<any>;
+}
+
 @Injectable()
 export class MergeService {
   private readonly logger = new Logger(MergeService.name);
 
   constructor(
-    @InjectQueue('merge-queue') private mergeQueue: Queue,
+    @Inject('BullQueue_merge-queue') private mergeQueue: IQueue,
     private prisma: PrismaService,
     private s3Service: S3Service,
     private mergeProcessor: MergeProcessor,
@@ -38,7 +41,7 @@ export class MergeService {
 
     if (isSync) {
       this.logger.log(`Processing job ${job.id} synchronously (Netlify Mode)`);
-      const mockJob = {
+      const mockJob: any = {
         data: {
           jobId: job.id,
           files: createMergeJobDto.files,
@@ -47,7 +50,7 @@ export class MergeService {
         progress: (p: number) => {
           this.logger.debug(`Job ${job.id} progress: ${p}`);
         },
-      } as unknown as Job;
+      };
 
       try {
         await this.mergeProcessor.handleMerge(mockJob);

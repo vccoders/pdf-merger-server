@@ -14,7 +14,9 @@
     "@nestjs/typeorm",
     "@bull-board/nestjs",
     "@bull-board/express",
-    "@bull-board/api"
+    "@bull-board/api",
+    "bull",
+    "@nestjs/bull"
   ]
 
 [[redirects]]

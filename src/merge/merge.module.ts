@@ -11,4 +11,4 @@ import { WorkerModule } from '../worker/worker.module';
   controllers: [MergeController],
   providers: [MergeService],
 })
-export class MergeModule { }
+export class MergeModule {}

@@ -1,10 +1,12 @@
-import { Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMergeJobDto } from './dto/create-merge-job.dto';
 import { Prisma } from '@prisma/client';
 import { S3Service } from '../s3/s3.service';
 import { MergeProcessor } from '../worker/merge.processor';
 import { ConfigService } from '@nestjs/config';
+interface IQueue {
+    add(name: string, data: any, options?: any): Promise<any>;
+}
 export declare class MergeService {
     private mergeQueue;
     private prisma;
@@ -12,7 +14,7 @@ export declare class MergeService {
     private mergeProcessor;
     private configService;
     private readonly logger;
-    constructor(mergeQueue: Queue, prisma: PrismaService, s3Service: S3Service, mergeProcessor: MergeProcessor, configService: ConfigService);
+    constructor(mergeQueue: IQueue, prisma: PrismaService, s3Service: S3Service, mergeProcessor: MergeProcessor, configService: ConfigService);
     createJob(createMergeJobDto: CreateMergeJobDto): Promise<{
         files: Prisma.JsonValue;
         options: Prisma.JsonValue | null;
@@ -39,3 +41,4 @@ export declare class MergeService {
         downloadUrl: string;
     }>;
 }
+export {};

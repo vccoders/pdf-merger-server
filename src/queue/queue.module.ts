@@ -1,34 +1,33 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
-const isSyncMode = process.env.SYNC_PROCESSING === 'true';
-
-// Mock queue provider for serverless
-const mockQueueProvider = {
-  provide: 'BullQueue_merge-queue',
-  useValue: {
-    add: async () => ({ id: 'mock' }),
-    process: () => { },
-    on: () => { },
-  },
-};
 
 @Global()
 @Module({})
 export class QueueModule {
-  static async register(): Promise<DynamicModule> {
+  static register(): DynamicModule {
+    // Check if we're in serverless mode
+    const isSyncMode = process.env.SYNC_PROCESSING === 'true';
+
     if (isSyncMode) {
-      // Serverless mode - return mock queue (no Redis needed)
+      // Return mock queue module (no Bull dependencies)
       return {
         module: QueueModule,
-        providers: [mockQueueProvider],
+        providers: [
+          {
+            provide: 'BullQueue_merge-queue',
+            useValue: {
+              add: () => Promise.resolve({ id: 'mock-job' }),
+              process: () => {},
+              on: () => {},
+            },
+          },
+        ],
         exports: ['BullQueue_merge-queue'],
       };
     }
 
-    // Standard mode - dynamically import Bull
-    const { BullModule } = await import('@nestjs/bull');
-
+    // Standard mode with real Bull Queue
     return {
       module: QueueModule,
       imports: [
