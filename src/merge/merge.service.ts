@@ -6,6 +6,8 @@ import { CreateMergeJobDto } from './dto/create-merge-job.dto';
 import { MergeJobStatus } from '@prisma/client';
 
 import { S3Service } from '../s3/s3.service';
+import { MergeProcessor } from '../worker/merge.processor';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MergeService {
@@ -15,6 +17,8 @@ export class MergeService {
         @InjectQueue('merge-queue') private mergeQueue: Queue,
         private prisma: PrismaService,
         private s3Service: S3Service,
+        private mergeProcessor: MergeProcessor,
+        private configService: ConfigService,
     ) { }
 
     async createJob(createMergeJobDto: CreateMergeJobDto) {
@@ -29,24 +33,47 @@ export class MergeService {
 
         this.logger.log(`Created job ${job.id} in DB`);
 
-        // 2. Add to Queue
-        await this.mergeQueue.add(
-            'merge-job',
-            {
-                jobId: job.id,
-                files: createMergeJobDto.files,
-                options: createMergeJobDto.options,
-            },
-            {
-                attempts: 3,
-                backoff: {
-                    type: 'exponential',
-                    delay: 1000,
+        // 2. Check for Sync Processing (Netlify Mode)
+        const isSync = this.configService.get('SYNC_PROCESSING') === 'true';
+
+        if (isSync) {
+            this.logger.log(`Processing job ${job.id} synchronously (Netlify Mode)`);
+            const mockJob = {
+                data: {
+                    jobId: job.id,
+                    files: createMergeJobDto.files,
+                    options: createMergeJobDto.options,
                 },
-                removeOnComplete: true,
-                removeOnFail: false, // Keep failed jobs for DLQ
-            },
-        );
+                progress: async (p: number) => { this.logger.debug(`Job ${job.id} progress: ${p}`); },
+            } as any;
+
+            try {
+                await this.mergeProcessor.handleMerge(mockJob);
+            } catch (error) {
+                this.logger.error(`Sync processing failed for job ${job.id}`, error);
+                // Error is already handled in processor (DB update), but we catch here to ensure we return the job
+            }
+        } else {
+            // 3. Add to Queue (Standard Mode)
+            await this.mergeQueue.add(
+                'merge-job',
+                {
+                    jobId: job.id,
+                    files: createMergeJobDto.files,
+                    options: createMergeJobDto.options,
+                },
+                {
+                    attempts: 3,
+                    backoff: {
+                        type: 'exponential',
+                        delay: 1000,
+                    },
+                    removeOnComplete: true,
+                    removeOnFail: false, // Keep failed jobs for DLQ
+                },
+            );
+            this.logger.log(`Enqueued job ${job.id}`);
+        }
 
         this.logger.log(`Enqueued job ${job.id}`);
 

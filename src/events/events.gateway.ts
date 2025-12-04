@@ -43,11 +43,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Method to emit progress updates (called from service/processor)
     emitProgress(jobId: string, progress: number, status: string, resultKey?: string) {
-        this.server.to(`job:${jobId}`).emit('job-progress', {
-            jobId,
-            progress,
-            status,
-            resultKey,
-        });
+        if (this.server) {
+            this.server.to(`job:${jobId}`).emit('job-progress', {
+                jobId,
+                progress,
+                status,
+                resultKey,
+            });
+        }
     }
 }

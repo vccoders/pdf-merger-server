@@ -13,5 +13,6 @@ import { ConfigModule } from '@nestjs/config';
         QueueModule,
     ],
     providers: [MergeProcessor],
+    exports: [MergeProcessor],
 })
 export class WorkerModule { }
