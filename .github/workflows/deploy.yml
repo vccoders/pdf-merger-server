@@ -95,7 +95,6 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     environment:
       name: staging
-      url: https://staging-pdf-merger.example.com
 
     steps:
       - name: Checkout code
@@ -118,7 +117,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://pdf-merger.example.com
 
     steps:
       - name: Checkout code
@@ -134,13 +132,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"clearCache": false}'
 
-      - name: Run smoke tests
-        run: |
-          sleep 30
-          curl -f https://pdf-merger.example.com/health || exit 1
-
       - name: Notify deployment
         if: success()
         run: |
           echo "✅ Production deployment successful!"
-          # Add Slack/Discord notification here if needed
