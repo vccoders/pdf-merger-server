@@ -10,17 +10,26 @@ const serverless_http_1 = __importDefault(require("serverless-http"));
 const common_1 = require("@nestjs/common");
 let server;
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.setGlobalPrefix('api');
-    app.enableCors({
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-    });
-    app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
-    await app.init();
-    const expressApp = app.getHttpAdapter().getInstance();
-    return (0, serverless_http_1.default)(expressApp);
+    try {
+        const app = await core_1.NestFactory.create(app_module_1.AppModule, {
+            logger: ['error', 'warn', 'log'],
+            abortOnError: false,
+        });
+        app.setGlobalPrefix('api');
+        app.enableCors({
+            origin: '*',
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+            credentials: true,
+        });
+        app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
+        await app.init();
+        const expressApp = app.getHttpAdapter().getInstance();
+        return (0, serverless_http_1.default)(expressApp);
+    }
+    catch (error) {
+        console.error('Failed to bootstrap NestJS application:', error);
+        throw error;
+    }
 }
 const handler = async (event, context) => {
     if (!server) {

@@ -18,6 +18,13 @@ export class S3Service {
   private readonly logger = new Logger(S3Service.name);
 
   constructor(private readonly configService: ConfigService) {
+    // Validate that ConfigService is properly injected
+    if (!this.configService) {
+      throw new Error(
+        'ConfigService is not available. Ensure ConfigModule is properly imported.',
+      );
+    }
+
     const region = this.configService.get<string>(
       'STORAGE_REGION',
       'us-east-1',
@@ -31,6 +38,17 @@ export class S3Service {
       'STORAGE_BUCKET_NAME',
       'pdf-merger-bucket',
     );
+
+    // Log configuration for debugging (without sensitive data)
+    this.logger.debug(
+      `S3 Configuration: region=${region}, endpoint=${endpoint}, bucket=${this.bucketName}`,
+    );
+
+    if (!accessKeyId || !secretAccessKey || !endpoint) {
+      throw new Error(
+        `Missing required S3 configuration: ${!accessKeyId ? 'STORAGE_ACCESS_KEY ' : ''}${!secretAccessKey ? 'STORAGE_SECRET_KEY ' : ''}${!endpoint ? 'STORAGE_ENDPOINT' : ''}`,
+      );
+    }
 
     this.s3Client = new S3Client({
       region,

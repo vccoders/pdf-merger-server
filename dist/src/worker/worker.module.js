@@ -19,7 +19,13 @@ let WorkerModule = class WorkerModule {
 exports.WorkerModule = WorkerModule;
 exports.WorkerModule = WorkerModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_1.ConfigModule, s3_module_1.S3Module, prisma_module_1.PrismaModule, queue_module_1.QueueModule.register(), events_module_1.EventsModule],
+        imports: [
+            config_1.ConfigModule,
+            s3_module_1.S3Module,
+            prisma_module_1.PrismaModule,
+            queue_module_1.QueueModule.register(),
+            events_module_1.EventsModule,
+        ],
         providers: [merge_processor_1.MergeProcessor],
         exports: [merge_processor_1.MergeProcessor],
     })

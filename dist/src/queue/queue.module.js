@@ -21,7 +21,7 @@ let QueueModule = QueueModule_1 = class QueueModule {
                     {
                         provide: 'BullQueue_merge-queue',
                         useValue: {
-                            add: async () => ({ id: 'mock-job' }),
+                            add: () => Promise.resolve({ id: 'mock-job' }),
                             process: () => { },
                             on: () => { },
                         },

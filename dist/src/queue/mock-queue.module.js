@@ -18,7 +18,7 @@ exports.MockQueueModule = MockQueueModule = __decorate([
             {
                 provide: 'BullQueue_merge-queue',
                 useValue: {
-                    add: async () => ({ id: 'mock-job' }),
+                    add: () => Promise.resolve({ id: 'mock-job' }),
                     process: () => { },
                     on: () => { },
                 },
