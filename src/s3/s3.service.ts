@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
@@ -12,55 +12,67 @@ import * as fs from 'fs';
 import { pipeline } from 'stream/promises';
 
 @Injectable()
-export class S3Service {
-  private readonly s3Client: S3Client;
-  private readonly bucketName: string;
+export class S3Service implements OnModuleInit {
+  private s3Client: S3Client;
+  private bucketName: string;
   private readonly logger = new Logger(S3Service.name);
+  private initialized = false;
 
   constructor(private readonly configService: ConfigService) {
-    // Validate that ConfigService is properly injected
-    if (!this.configService) {
-      throw new Error(
-        'ConfigService is not available. Ensure ConfigModule is properly imported.',
+    this.logger.log('S3Service constructor called');
+  }
+
+  async onModuleInit() {
+    try {
+      this.logger.log('Initializing S3Service...');
+
+      const region = this.configService.get<string>(
+        'STORAGE_REGION',
+        'us-east-1',
       );
-    }
+      const accessKeyId = this.configService.get<string>('STORAGE_ACCESS_KEY');
+      const secretAccessKey =
+        this.configService.get<string>('STORAGE_SECRET_KEY');
+      const endpoint = this.configService.get<string>('STORAGE_ENDPOINT');
 
-    const region = this.configService.get<string>(
-      'STORAGE_REGION',
-      'us-east-1',
-    );
-    const accessKeyId = this.configService.get<string>('STORAGE_ACCESS_KEY');
-    const secretAccessKey =
-      this.configService.get<string>('STORAGE_SECRET_KEY');
-    const endpoint = this.configService.get<string>('STORAGE_ENDPOINT');
-
-    this.bucketName = this.configService.get<string>(
-      'STORAGE_BUCKET_NAME',
-      'pdf-merger-bucket',
-    );
-
-    // Log configuration for debugging (without sensitive data)
-    this.logger.debug(
-      `S3 Configuration: region=${region}, endpoint=${endpoint}, bucket=${this.bucketName}`,
-    );
-
-    if (!accessKeyId || !secretAccessKey || !endpoint) {
-      throw new Error(
-        `Missing required S3 configuration: ${!accessKeyId ? 'STORAGE_ACCESS_KEY ' : ''}${!secretAccessKey ? 'STORAGE_SECRET_KEY ' : ''}${!endpoint ? 'STORAGE_ENDPOINT' : ''}`,
+      this.bucketName = this.configService.get<string>(
+        'STORAGE_BUCKET_NAME',
+        'pdf-merger-bucket',
       );
+
+      // Log configuration for debugging (without sensitive data)
+      this.logger.log(
+        `S3 Configuration: region=${region}, endpoint=${endpoint}, bucket=${this.bucketName}`,
+      );
+
+      if (!accessKeyId || !secretAccessKey || !endpoint) {
+        throw new Error(
+          `Missing required S3 configuration: ${!accessKeyId ? 'STORAGE_ACCESS_KEY ' : ''}${!secretAccessKey ? 'STORAGE_SECRET_KEY ' : ''}${!endpoint ? 'STORAGE_ENDPOINT' : ''}`,
+        );
+      }
+
+      this.s3Client = new S3Client({
+        region,
+        endpoint,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+        forcePathStyle: true, // Required for MinIO/Supabase
+      });
+
+      this.initialized = true;
+      this.logger.log(`S3 Service initialized successfully for bucket: ${this.bucketName}`);
+    } catch (error) {
+      this.logger.error('Failed to initialize S3Service:', error);
+      throw error;
     }
+  }
 
-    this.s3Client = new S3Client({
-      region,
-      endpoint,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-      forcePathStyle: true, // Required for MinIO/Supabase
-    });
-
-    this.logger.log(`S3 Service initialized for bucket: ${this.bucketName}`);
+  private ensureInitialized() {
+    if (!this.initialized) {
+      throw new Error('S3Service has not been initialized yet');
+    }
   }
 
   /**
@@ -72,6 +84,7 @@ export class S3Service {
     expiresIn = 3600,
     fileSize?: number,
   ): Promise<string> {
+    this.ensureInitialized();
     try {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
@@ -103,6 +116,7 @@ export class S3Service {
     expiresIn = 3600,
     filename?: string,
   ): Promise<string> {
+    this.ensureInitialized();
     try {
       const command = new GetObjectCommand({
         Bucket: this.bucketName,
@@ -129,6 +143,7 @@ export class S3Service {
    * Delete an object from S3
    */
   async deleteObject(key: string): Promise<void> {
+    this.ensureInitialized();
     try {
       const command = new DeleteObjectCommand({
         Bucket: this.bucketName,
@@ -153,6 +168,7 @@ export class S3Service {
   async checkFileExists(
     key: string,
   ): Promise<{ exists: boolean; size?: number; contentType?: string }> {
+    this.ensureInitialized();
     if (process.env.MOCK_S3 === 'true') {
       this.logger.warn(`Mocking S3 check for key: ${key}`);
       return { exists: true, size: 1024, contentType: 'application/pdf' };
@@ -187,6 +203,7 @@ export class S3Service {
    * Download a file from S3 to a local path
    */
   async downloadFile(key: string, localPath: string): Promise<void> {
+    this.ensureInitialized();
     if (process.env.MOCK_S3 === 'true') {
       this.logger.warn(`Mocking download for ${key}`);
       if (!fs.existsSync(localPath)) {
@@ -223,6 +240,7 @@ export class S3Service {
     localPath: string,
     contentType: string,
   ): Promise<void> {
+    this.ensureInitialized();
     if (process.env.MOCK_S3 === 'true') {
       this.logger.warn(`Mocking upload for ${key}`);
       return;
