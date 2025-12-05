@@ -7,7 +7,7 @@ export declare class S3Service implements OnModuleInit {
     private readonly logger;
     private initialized;
     constructor(configService: ConfigService);
-    onModuleInit(): Promise<void>;
+    onModuleInit(): void;
     private ensureInitialized;
     getSignedUploadUrl(key: string, contentType: string, expiresIn?: number, fileSize?: number): Promise<string>;
     getSignedDownloadUrl(key: string, expiresIn?: number, filename?: string): Promise<string>;

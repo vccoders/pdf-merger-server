@@ -57,7 +57,7 @@ let S3Service = S3Service_1 = class S3Service {
         this.initialized = false;
         this.logger.log('S3Service constructor called');
     }
-    async onModuleInit() {
+    onModuleInit() {
         try {
             this.logger.log('Initializing S3Service...');
             const region = this.configService.get('STORAGE_REGION', 'us-east-1');

@@ -61,8 +61,13 @@ let MergeProcessor = MergeProcessor_1 = class MergeProcessor {
         this.configService = configService;
         this.eventsGateway = eventsGateway;
         this.logger = new common_1.Logger(MergeProcessor_1.name);
+        this.logger.log('MergeProcessor constructor called');
+    }
+    onModuleInit() {
+        this.logger.log('Initializing MergeProcessor...');
         this.tempDir = this.configService.get('TEMP_DIR', './tmp');
         fs.ensureDirSync(this.tempDir);
+        this.logger.log(`MergeProcessor initialized with tempDir: ${this.tempDir}`);
     }
     async handleMerge(job) {
         const { jobId, files, options } = job.data;

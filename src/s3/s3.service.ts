@@ -22,7 +22,7 @@ export class S3Service implements OnModuleInit {
     this.logger.log('S3Service constructor called');
   }
 
-  async onModuleInit() {
+  onModuleInit() {
     try {
       this.logger.log('Initializing S3Service...');
 
@@ -62,7 +62,9 @@ export class S3Service implements OnModuleInit {
       });
 
       this.initialized = true;
-      this.logger.log(`S3 Service initialized successfully for bucket: ${this.bucketName}`);
+      this.logger.log(
+        `S3 Service initialized successfully for bucket: ${this.bucketName}`,
+      );
     } catch (error) {
       this.logger.error('Failed to initialize S3Service:', error);
       throw error;
