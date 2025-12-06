@@ -36,8 +36,9 @@ export class MergeService {
 
     this.logger.log(`Created job ${job.id} in DB`);
 
-    // 2. Check for Sync Processing (Netlify Mode)
-    const isSync = this.configService.get('SYNC_PROCESSING') === 'true';
+    // Default to sync processing on Render (no Redis available on free tier)
+    const isSync = this.configService.get('SYNC_PROCESSING', 'true') === 'true';
+    this.logger.log(`SYNC_PROCESSING=${this.configService.get('SYNC_PROCESSING', 'true')}, isSync=${isSync}`);
 
     if (isSync) {
       this.logger.log(`Processing job ${job.id} synchronously (Netlify Mode)`);
