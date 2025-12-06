@@ -19,6 +19,14 @@ export class S3Service {
   private initialized = false;
 
   constructor(private readonly configService: ConfigService) {
+    this.logger.log('S3Service constructor called');
+  }
+
+  private ensureInitialized() {
+    if (this.initialized) {
+      return;
+    }
+
     try {
       this.logger.log('Initializing S3Service...');
 
@@ -71,12 +79,6 @@ export class S3Service {
     } catch (error) {
       this.logger.error('Failed to initialize S3Service:', error);
       throw error;
-    }
-  }
-
-  private ensureInitialized() {
-    if (!this.initialized) {
-      throw new Error('S3Service has not been initialized yet');
     }
   }
 

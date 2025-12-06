@@ -55,6 +55,12 @@ let S3Service = S3Service_1 = class S3Service {
         this.configService = configService;
         this.logger = new common_1.Logger(S3Service_1.name);
         this.initialized = false;
+        this.logger.log('S3Service constructor called');
+    }
+    ensureInitialized() {
+        if (this.initialized) {
+            return;
+        }
         try {
             this.logger.log('Initializing S3Service...');
             if (!this.configService) {
@@ -86,11 +92,6 @@ let S3Service = S3Service_1 = class S3Service {
         catch (error) {
             this.logger.error('Failed to initialize S3Service:', error);
             throw error;
-        }
-    }
-    ensureInitialized() {
-        if (!this.initialized) {
-            throw new Error('S3Service has not been initialized yet');
         }
     }
     async getSignedUploadUrl(key, contentType, expiresIn = 3600, fileSize) {
