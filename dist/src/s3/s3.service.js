@@ -60,6 +60,11 @@ let S3Service = S3Service_1 = class S3Service {
     onModuleInit() {
         try {
             this.logger.log('Initializing S3Service...');
+            if (!this.configService) {
+                const errorMsg = 'ConfigService is not available. This indicates a dependency injection issue.';
+                this.logger.error(errorMsg);
+                throw new Error(errorMsg);
+            }
             const region = this.configService.get('STORAGE_REGION', 'us-east-1');
             const accessKeyId = this.configService.get('STORAGE_ACCESS_KEY');
             const secretAccessKey = this.configService.get('STORAGE_SECRET_KEY');

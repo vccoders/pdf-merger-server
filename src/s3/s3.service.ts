@@ -26,6 +26,13 @@ export class S3Service implements OnModuleInit {
     try {
       this.logger.log('Initializing S3Service...');
 
+      // Defensive check: Ensure ConfigService is properly injected
+      if (!this.configService) {
+        const errorMsg = 'ConfigService is not available. This indicates a dependency injection issue.';
+        this.logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
       const region = this.configService.get<string>(
         'STORAGE_REGION',
         'us-east-1',

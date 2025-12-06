@@ -46,10 +46,10 @@ exports.validationSchema = Joi.object({
     REDIS_PORT: Joi.number().default(6379),
     REDIS_PASSWORD: Joi.string().allow('').optional(),
     STORAGE_REGION: Joi.string().default('us-east-1'),
-    STORAGE_ACCESS_KEY: Joi.string().allow('').optional(),
-    STORAGE_SECRET_KEY: Joi.string().allow('').optional(),
+    STORAGE_ACCESS_KEY: Joi.string().required(),
+    STORAGE_SECRET_KEY: Joi.string().required(),
     STORAGE_BUCKET_NAME: Joi.string().default('pdf-merger-bucket'),
-    STORAGE_ENDPOINT: Joi.string().uri().allow('').optional(),
+    STORAGE_ENDPOINT: Joi.string().uri().required(),
     WORKER_CONCURRENCY: Joi.number().min(1).max(20).default(5),
     TEMP_DIR: Joi.string().default('./tmp'),
     LOG_LEVEL: Joi.string()

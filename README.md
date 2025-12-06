@@ -59,16 +59,72 @@ $ npm run test:cov
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Environment Variables
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+This application requires the following environment variables to be set. Copy `.env.example` to `.env` and fill in the values:
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+#### Required Variables
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- `DATABASE_URL` - PostgreSQL connection string
+- `REDIS_HOST` - Redis server hostname
+- `REDIS_PORT` - Redis server port (default: 6379)
+- `STORAGE_ACCESS_KEY` - S3-compatible storage access key
+- `STORAGE_SECRET_KEY` - S3-compatible storage secret key
+- `STORAGE_ENDPOINT` - S3-compatible storage endpoint URL
+- `STORAGE_BUCKET_NAME` - S3 bucket name (default: pdf-merger-bucket)
+
+#### Optional Variables
+
+- `NODE_ENV` - Environment (development/production/test)
+- `PORT` - Server port (default: 3000)
+- `STORAGE_REGION` - S3 region (default: us-east-1)
+- `WORKER_CONCURRENCY` - Number of concurrent workers (default: 5)
+- `LOG_LEVEL` - Logging level (error/warn/info/debug/trace)
+- `SENTRY_DSN` - Sentry error tracking DSN
+- `THROTTLE_TTL` - Rate limiting time window (default: 60000ms)
+- `THROTTLE_LIMIT` - Rate limiting max requests (default: 10)
+
+### Deploying to Netlify
+
+1. **Set Environment Variables** in Netlify Dashboard:
+   - Go to Site Settings → Environment Variables
+   - Add all required variables listed above
+   - **Critical**: Ensure `STORAGE_ACCESS_KEY`, `STORAGE_SECRET_KEY`, and `STORAGE_ENDPOINT` are set
+
+2. **Build Configuration**:
+   - Build command: `npx prisma generate && npm run build`
+   - Publish directory: `dist`
+   - Functions directory: `.netlify/functions`
+
+3. **Common Issues**:
+
+   **Error: "Cannot read properties of undefined (reading 'get')"**
+   - **Cause**: Missing or incorrectly configured environment variables
+   - **Solution**: Verify all required environment variables are set in Netlify dashboard
+   - **Check**: Go to Netlify Dashboard → Site Settings → Environment Variables
+   - **Verify**: `STORAGE_ACCESS_KEY`, `STORAGE_SECRET_KEY`, and `STORAGE_ENDPOINT` are present
+
+   **Error: "ConfigService is not available"**
+   - **Cause**: Dependency injection issue in serverless environment
+   - **Solution**: This is now handled with defensive checks in the code
+   - **Action**: Ensure you're using the latest version of the codebase
+
+4. **Verify Deployment**:
+   ```bash
+   # Check function logs in Netlify dashboard
+   # Look for: "S3 Service initialized successfully for bucket: <bucket-name>"
+   ```
+
+### Deploying to Other Platforms
+
+When deploying to other platforms (AWS, Heroku, etc.), ensure:
+- All environment variables are properly set
+- PostgreSQL database is accessible
+- Redis instance is running and accessible
+- S3-compatible storage is configured
+- Prisma migrations are run: `npx prisma migrate deploy`
+
+For more information, check out the [NestJS deployment documentation](https://docs.nestjs.com/deployment).
 
 ## Resources
 
