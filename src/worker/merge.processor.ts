@@ -1,5 +1,5 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Logger, OnModuleInit } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { S3Service } from '../s3/s3.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,9 +11,10 @@ import { ConfigService } from '@nestjs/config';
 import { EventsGateway } from '../events/events.gateway';
 
 @Processor('merge-queue')
-export class MergeProcessor implements OnModuleInit {
+export class MergeProcessor {
   private readonly logger = new Logger(MergeProcessor.name);
   private tempDir: string;
+  private initialized = false;
 
   constructor(
     private readonly s3Service: S3Service,
@@ -24,15 +25,23 @@ export class MergeProcessor implements OnModuleInit {
     this.logger.log('MergeProcessor constructor called');
   }
 
-  onModuleInit() {
+  private ensureInitialized() {
+    if (this.initialized) {
+      return;
+    }
+
     this.logger.log('Initializing MergeProcessor...');
     this.tempDir = this.configService.get<string>('TEMP_DIR', './tmp');
     fs.ensureDirSync(this.tempDir);
+    this.initialized = true;
     this.logger.log(`MergeProcessor initialized with tempDir: ${this.tempDir}`);
   }
 
   @Process('merge-job')
   async handleMerge(job: Job) {
+    // Ensure initialization before processing
+    this.ensureInitialized();
+
     const { jobId, files, options } = job.data as {
       jobId: string;
       files: { fileKey: string }[];
