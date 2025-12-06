@@ -3,7 +3,7 @@
   publish = "dist"
 
 [functions]
-  node_bundler = "esbuild"
+  node_bundler = "nft"
   external_node_modules = [
     # Core NestJS packages (must be external for DI to work)
     "@nestjs/common",
