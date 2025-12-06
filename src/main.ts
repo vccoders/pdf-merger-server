@@ -44,10 +44,11 @@ async function bootstrap() {
     }),
   );
 
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // Disabled versioning for simpler routes
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1',
+  // });
 
   app.setGlobalPrefix('api');
 
