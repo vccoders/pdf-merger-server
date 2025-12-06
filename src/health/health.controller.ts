@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   HealthCheckService,
   HealthCheck,
@@ -28,6 +29,7 @@ export class PrismaHealthIndicator extends HealthIndicator {
   }
 }
 
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(
@@ -35,7 +37,7 @@ export class HealthController {
     private prismaHealth: PrismaHealthIndicator,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
-  ) {}
+  ) { }
 
   @Get()
   @HealthCheck()
