@@ -5,18 +5,35 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = [
+    # Core NestJS packages (must be external for DI to work)
+    "@nestjs/common",
+    "@nestjs/core",
+    "@nestjs/platform-express",
+    "@nestjs/config",
+    
+    # Optional NestJS packages
     "@nestjs/microservices", 
-    "pg-native", 
     "@nestjs/websockets",
     "@nestjs/mongoose",
-    "@mikro-orm/core",
     "@nestjs/sequelize",
     "@nestjs/typeorm",
+    "@nestjs/terminus",
+    "@nestjs/throttler",
+    
+    # Database
+    "pg-native",
+    "@mikro-orm/core",
+    
+    # Bull/Queue
     "@bull-board/nestjs",
     "@bull-board/express",
     "@bull-board/api",
     "bull",
-    "@nestjs/bull"
+    "@nestjs/bull",
+    
+    # Prisma
+    "@prisma/client",
+    ".prisma/client"
   ]
 
 [[redirects]]
