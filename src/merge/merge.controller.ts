@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CreateMergeJobDto } from './dto/create-merge-job.dto';
@@ -12,11 +13,16 @@ import { MergeService } from './merge.service';
 
 @Controller('merge')
 export class MergeController {
+  private readonly logger = new Logger(MergeController.name);
+
   constructor(private readonly mergeService: MergeService) { }
 
   @Post()
   async createMergeJob(@Body() createMergeJobDto: CreateMergeJobDto) {
-    return this.mergeService.createJob(createMergeJobDto);
+    this.logger.log(`Received merge job request with ${createMergeJobDto.files.length} files`);
+    const job = await this.mergeService.createJob(createMergeJobDto);
+    this.logger.log(`Created job ${job.id}, status: ${job.status}`);
+    return job;
   }
 
   @SkipThrottle()
