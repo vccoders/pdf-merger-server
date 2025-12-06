@@ -22,7 +22,7 @@ export class MergeService {
     private s3Service: S3Service,
     private mergeProcessor: MergeProcessor,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async createJob(createMergeJobDto: CreateMergeJobDto) {
     // 1. Create Job in DB
@@ -48,19 +48,22 @@ export class MergeService {
           options: createMergeJobDto.options,
         },
         progress: (p: number) => {
-          this.logger.debug(`Job ${job.id} progress: ${p}`);
+          this.logger.log(`Job ${job.id} progress: ${p}%`);
         },
       };
 
       try {
+        this.logger.log(`Starting merge processor for job ${job.id}`);
         await this.mergeProcessor.handleMerge(mockJob);
+        this.logger.log(`Merge processor completed for job ${job.id}`);
       } catch (error) {
         const err = error as Error;
         this.logger.error(
           `Sync processing failed for job ${job.id}: ${err.message}`,
           err.stack,
         );
-        // Error is already handled in processor (DB update), but we catch here to ensure we return the job
+        // Re-throw to ensure caller knows about the failure
+        throw err;
       }
     } else {
       // 3. Add to Queue (Standard Mode)
