@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: pdf-merger-server
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npx prisma generate && npm install && npm run build
+    startCommand: node dist/src/main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: SYNC_PROCESSING
+        value: true
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: STORAGE_REGION
+        value: ap-south-1
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: STORAGE_BUCKET_NAME
+        value: pdf-merger-bucket
+      - key: STORAGE_ENDPOINT
+        sync: false
+      - key: WORKER_CONCURRENCY
+        value: 5
+      - key: TEMP_DIR
+        value: /tmp
+      - key: LOG_LEVEL
+        value: info
+      - key: THROTTLE_TTL
+        value: 60000
+      - key: THROTTLE_LIMIT
+        value: 10
+    healthCheckPath: /api/health/live
