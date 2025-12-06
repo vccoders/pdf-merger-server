@@ -38,9 +38,11 @@ export class MergeService {
 
     // Default to sync processing on Render (no Redis available on free tier)
     const isSync = this.configService.get('SYNC_PROCESSING', 'true') === 'true';
+    console.log(`[DEBUG] SYNC_PROCESSING=${this.configService.get('SYNC_PROCESSING', 'true')}, isSync=${isSync}`);
     this.logger.log(`SYNC_PROCESSING=${this.configService.get('SYNC_PROCESSING', 'true')}, isSync=${isSync}`);
 
     if (isSync) {
+      console.log(`[DEBUG] Processing job ${job.id} synchronously`);
       this.logger.log(`Processing job ${job.id} synchronously (Netlify Mode)`);
       const mockJob: any = {
         data: {
@@ -49,16 +51,20 @@ export class MergeService {
           options: createMergeJobDto.options,
         },
         progress: (p: number) => {
+          console.log(`[DEBUG] Job ${job.id} progress: ${p}%`);
           this.logger.log(`Job ${job.id} progress: ${p}%`);
         },
       };
 
       try {
+        console.log(`[DEBUG] Starting merge processor for job ${job.id}`);
         this.logger.log(`Starting merge processor for job ${job.id}`);
         await this.mergeProcessor.handleMerge(mockJob);
+        console.log(`[DEBUG] Merge processor completed for job ${job.id}`);
         this.logger.log(`Merge processor completed for job ${job.id}`);
       } catch (error) {
         const err = error as Error;
+        console.error(`[ERROR] Sync processing failed for job ${job.id}:`, err.message, err.stack);
         this.logger.error(
           `Sync processing failed for job ${job.id}: ${err.message}`,
           err.stack,

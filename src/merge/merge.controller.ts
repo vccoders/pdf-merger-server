@@ -19,8 +19,10 @@ export class MergeController {
 
   @Post()
   async createMergeJob(@Body() createMergeJobDto: CreateMergeJobDto) {
+    console.log(`[DEBUG] Received merge job request with ${createMergeJobDto.files.length} files`);
     this.logger.log(`Received merge job request with ${createMergeJobDto.files.length} files`);
     const job = await this.mergeService.createJob(createMergeJobDto);
+    console.log(`[DEBUG] Created job ${job.id}, status: ${job.status}`);
     this.logger.log(`Created job ${job.id}, status: ${job.status}`);
     return job;
   }
