@@ -37,9 +37,10 @@ export class MergeService {
     this.logger.log(`Created job ${job.id} in DB`);
 
     // Default to sync processing on Render (no Redis available on free tier)
-    const isSync = this.configService.get('SYNC_PROCESSING', 'true') === 'true';
-    console.log(`[DEBUG] SYNC_PROCESSING=${this.configService.get('SYNC_PROCESSING', 'true')}, isSync=${isSync}`);
-    this.logger.log(`SYNC_PROCESSING=${this.configService.get('SYNC_PROCESSING', 'true')}, isSync=${isSync}`);
+    const syncValue = this.configService.get('SYNC_PROCESSING', 'true');
+    const isSync = syncValue === 'true' || syncValue === true || syncValue === 'TRUE';
+    console.log(`[DEBUG] SYNC_PROCESSING raw value:`, syncValue, `type:`, typeof syncValue, `isSync:`, isSync);
+    this.logger.log(`SYNC_PROCESSING=${syncValue}, isSync=${isSync}`);
 
     if (isSync) {
       console.log(`[DEBUG] Processing job ${job.id} synchronously`);
