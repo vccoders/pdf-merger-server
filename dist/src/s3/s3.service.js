@@ -55,9 +55,6 @@ let S3Service = S3Service_1 = class S3Service {
         this.configService = configService;
         this.logger = new common_1.Logger(S3Service_1.name);
         this.initialized = false;
-        this.logger.log('S3Service constructor called');
-    }
-    onModuleInit() {
         try {
             this.logger.log('Initializing S3Service...');
             if (!this.configService) {

@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
@@ -12,17 +12,13 @@ import * as fs from 'fs';
 import { pipeline } from 'stream/promises';
 
 @Injectable()
-export class S3Service implements OnModuleInit {
+export class S3Service {
   private s3Client: S3Client;
   private bucketName: string;
   private readonly logger = new Logger(S3Service.name);
   private initialized = false;
 
   constructor(private readonly configService: ConfigService) {
-    this.logger.log('S3Service constructor called');
-  }
-
-  onModuleInit() {
     try {
       this.logger.log('Initializing S3Service...');
 

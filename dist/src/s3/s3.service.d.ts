@@ -1,13 +1,11 @@
-import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-export declare class S3Service implements OnModuleInit {
+export declare class S3Service {
     private readonly configService;
     private s3Client;
     private bucketName;
     private readonly logger;
     private initialized;
     constructor(configService: ConfigService);
-    onModuleInit(): void;
     private ensureInitialized;
     getSignedUploadUrl(key: string, contentType: string, expiresIn?: number, fileSize?: number): Promise<string>;
     getSignedDownloadUrl(key: string, expiresIn?: number, filename?: string): Promise<string>;
