@@ -19,12 +19,23 @@ export class MergeController {
 
   @Post()
   async createMergeJob(@Body() createMergeJobDto: CreateMergeJobDto) {
-    console.log(`[DEBUG] Received merge job request with ${createMergeJobDto.files.length} files`);
-    this.logger.log(`Received merge job request with ${createMergeJobDto.files.length} files`);
-    const job = await this.mergeService.createJob(createMergeJobDto);
-    console.log(`[DEBUG] Created job ${job.id}, status: ${job.status}`);
-    this.logger.log(`Created job ${job.id}, status: ${job.status}`);
-    return job;
+    try {
+      console.log(`[CONTROLLER START] Received merge request`);
+      console.log(`[DEBUG] Files count: ${createMergeJobDto.files.length}`);
+      console.log(`[DEBUG] Request body:`, JSON.stringify(createMergeJobDto));
+
+      this.logger.log(`Received merge job request with ${createMergeJobDto.files.length} files`);
+
+      const job = await this.mergeService.createJob(createMergeJobDto);
+
+      console.log(`[CONTROLLER END] Created job ${job.id}, status: ${job.status}`);
+      this.logger.log(`Created job ${job.id}, status: ${job.status}`);
+
+      return job;
+    } catch (error) {
+      console.error(`[CONTROLLER ERROR]`, error);
+      throw error;
+    }
   }
 
   @SkipThrottle()
