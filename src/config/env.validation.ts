@@ -11,10 +11,13 @@ export const validationSchema = Joi.object({
   DATABASE_URL: Joi.string().required(),
   DIRECT_URL: Joi.string().optional(),
 
-  // Redis
-  REDIS_HOST: Joi.string().required(),
+  // Redis (Optional - not needed if SYNC_PROCESSING=true)
+  REDIS_HOST: Joi.string().optional(),
   REDIS_PORT: Joi.number().default(6379),
   REDIS_PASSWORD: Joi.string().allow('').optional(),
+
+  // Sync Processing Mode (for serverless without Redis)
+  SYNC_PROCESSING: Joi.boolean().default(false),
 
   // Storage (S3-compatible)
   STORAGE_REGION: Joi.string().default('us-east-1'),
